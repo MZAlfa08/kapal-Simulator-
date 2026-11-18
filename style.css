@@ -68,3 +68,17 @@ input[type=checkbox]{width:1.2rem;height:1.2rem;margin-right:.6rem;accent-color:
 .row{display:flex;gap:8px}
 #hud #bFlip,#hud #bHorn{padding:.35em .8em;font-size:.8rem}
 input[type=range]{accent-color:var(--gold);vertical-align:middle;width:170px;margin-left:.6rem}
+
+/* Cuaca, peringatan sandar, autopilot, statistik toko */
+#hWx{position:absolute;top:calc(max(12px,env(safe-area-inset-top)) + 52px);left:12px;font-size:.8rem;background:rgba(8,40,58,.7);padding:5px 12px;border-radius:10px}
+#hDest{top:calc(max(12px,env(safe-area-inset-top)) + 86px)}
+#hDest:empty{display:none}
+#hWarn{position:absolute;top:calc(max(12px,env(safe-area-inset-top)) + 8px);left:50%;transform:translateX(-50%);background:rgba(200,50,31,.92);border:2px solid #ffd2c9;padding:8px 18px;border-radius:12px;font-weight:800;letter-spacing:.03em;opacity:0;transition:opacity .2s;white-space:nowrap}
+#hWarn.on{opacity:1;animation:blink .7s steps(2,jump-none) infinite}
+@keyframes blink{50%{background:rgba(120,25,15,.92)}}
+#hud #bCruise{padding:.35em .8em;font-size:.8rem}
+#hud #bCruise.on{background:#4ee08a;box-shadow:0 3px 0 #23925a}
+.bar{grid-template-columns:78px 1fr 62px}
+.bar small{font-size:.72rem;color:#cfe6ee;text-align:right}
+@media(max-width:640px){#hWx{top:calc(max(12px,env(safe-area-inset-top)) + 52px);font-size:.72rem}#hWarn{top:auto;bottom:150px;font-size:.85rem}}
+@media(prefers-reduced-motion:reduce){#hWarn.on{animation:none}}
