@@ -64,3 +64,7 @@ input[type=checkbox]{width:1.2rem;height:1.2rem;margin-right:.6rem;accent-color:
 .gas{--hi:#86f5a8;--lo:#1b9650;--sh:#115c31}
 .brake{--hi:#ff9580;--lo:#c8321f;--sh:#7e1d11}
 @media(max-width:640px){#mini{width:170px;height:46px}.btns{top:calc(max(12px,env(safe-area-inset-top)) + 58px)}#gauge{width:165px}#hud .pedal{width:84px;height:84px}}
+
+.row{display:flex;gap:8px}
+#hud #bFlip,#hud #bHorn{padding:.35em .8em;font-size:.8rem}
+input[type=range]{accent-color:var(--gold);vertical-align:middle;width:170px;margin-left:.6rem}
