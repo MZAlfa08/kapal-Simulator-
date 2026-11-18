@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kapal Kapal – Kapal Simulator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
 
+<div id="hud" class="hide">
+  <div class="stats"><b id="hMoney">Rp 0</b><span id="hPass"></span><span id="hCargo"></span></div>
+  <div id="hDest"></div>
+  <canvas id="mini" width="200" height="133"></canvas>
+  <div class="btns"><button id="bMap">Peta (M)</button><button id="bMenu">Menu</button></div>
+  <p class="tip">Panah / WASD atau tahan layar untuk berlayar. Sandar pelan di dermaga untuk naik dan turun muatan.</p>
+</div>
+
+<section id="menu" class="screen">
+  <h1>Kapal Kapal</h1>
+  <p class="sub">Kapal Simulator Nusantara</p>
+  <nav>
+    <button id="bPlay" class="big">Mulai</button>
+    <button id="bShop">Toko</button>
+    <button id="bSet">Pengaturan</button>
+  </nav>
+  <p id="mMoney" class="sub"></p>
+</section>
+
+<section id="shop" class="screen panel hide">
+  <header><h2>Toko Kapal</h2><b id="shopMoney"></b><button id="shopBack">Kembali</button></header>
+  <div id="shopList"></div>
+</section>
+
+<section id="settings" class="screen panel hide">
+  <header><h2>Pengaturan</h2><button id="setBack">Kembali</button></header>
+  <label><input type="checkbox" id="sSound"> Suara</label>
+  <label><input type="checkbox" id="sMini"> Tampilkan peta mini</label>
+  <label><input type="checkbox" id="sWave"> Gelombang air</label>
+  <button id="sReset" class="danger">Hapus semua kemajuan</button>
+</section>
+
+<div id="mapov" class="hide"><canvas id="big"></canvas></div>
+<div id="toast"></div>
+
+<script src="data.js"></script>
+<script src="draw.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
