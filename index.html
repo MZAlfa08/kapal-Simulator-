@@ -18,7 +18,7 @@
     <button id="bBrake" class="pedal brake" aria-label="Rem">
       <svg viewBox="0 0 40 40"><rect x="7" y="7" width="26" height="26" rx="6" fill="#fff"/><path d="M12 15h16M12 20h16M12 25h16" stroke="#c8321f" stroke-width="2.5" stroke-linecap="round"/></svg>REM
     </button>
-    <div id="gwrap"><canvas id="gauge" width="220" height="125"></canvas><button id="bFlip">⇄ Putar haluan</button></div>
+    <div id="gwrap"><canvas id="gauge" width="220" height="125"></canvas><div class="row"><button id="bFlip">⇄ Putar</button><button id="bHorn">📯 Klakson (H)</button></div></div>
     <button id="bGas" class="pedal gas" aria-label="Gas">
       <svg viewBox="0 0 40 40"><path d="M9 21l11-11 11 11M9 32l11-11 11 11" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>GAS
     </button>
@@ -44,6 +44,7 @@
 <section id="settings" class="screen panel hide">
   <header><h2>Pengaturan</h2><button id="setBack">Kembali</button></header>
   <label><input type="checkbox" id="sSound"> Suara</label>
+  <label>Volume <input type="range" id="sVol" min="0" max="100"></label>
   <label><input type="checkbox" id="sMini"> Tampilkan peta rute</label>
   <label><input type="checkbox" id="sWave"> Gelombang air</label>
   <button id="sReset" class="danger">Hapus semua kemajuan</button>
@@ -52,8 +53,6 @@
 <div id="mapov" class="hide"><canvas id="big"></canvas></div>
 <div id="toast"></div>
 
-<script src="data.js"></script>
-<script src="draw.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
