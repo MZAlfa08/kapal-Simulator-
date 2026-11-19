@@ -79,6 +79,15 @@ function drawBack(c,W,H,yH,camX,t,S){
   for(let x=0;x<=W;x+=14){const wx=x+camX*par;c.lineTo(x,yH-base-a1*Math.pow(Math.abs(Math.sin(wx*k1)),1.35)-a2*Math.sin(wx*k2+1))}c.lineTo(W,yH);c.fill()};
  ridge(.05,hz('#8fa9c0',.5),26,78,.0012,10,.011);
  ridge(.12,hz('#6f93a8',.38),12,44,.0021,8,.017);
+ // gunung berapi berasap
+ {const sp2=14000,f2=.09;for(let i=Math.floor((camX*f2-500)/sp2);i<=Math.floor((camX*f2+W+500)/sp2);i++){
+  const vx=i*sp2+3000+Math.abs(i*7919%5000)-camX*f2,vh=120+Math.abs(i*31%50),vw=vh*1.9;if(vx<-vw||vx>W+vw)continue;
+  c.fillStyle=hz('#6c7f8d',.45);c.beginPath();c.moveTo(vx-vw,yH);c.quadraticCurveTo(vx-vw*.3,yH-vh*.55,vx-vw*.1,yH-vh);c.lineTo(vx+vw*.1,yH-vh);c.quadraticCurveTo(vx+vw*.3,yH-vh*.55,vx+vw,yH);c.fill();
+  c.fillStyle=hz('#55687a',.5);c.beginPath();c.moveTo(vx+vw*.1,yH-vh);c.quadraticCurveTo(vx+vw*.3,yH-vh*.55,vx+vw,yH);c.lineTo(vx+vw*.3,yH);c.closePath();c.fill();
+  for(let j=0;j<6;j++){c.fillStyle=`rgba(215,215,222,${.5-j*.06})`;c.beginPath();c.arc(vx+Math.sin(t*.3+j)*6+j*12,yH-vh-8-j*17,9+j*5,0,7);c.fill()}}}
+ // pulau-pulau kecil di kejauhan
+ for(let i=Math.floor((camX*.3-300)/2600);i<=Math.floor((camX*.3+W+300)/2600);i++){const x=i*2600+hsh(i)*1500-camX*.3,w=120+hsh(i+5)*140,hh=16+hsh(i+9)*30;
+  c.fillStyle=hz('#5f8f78',.55);c.beginPath();c.moveTo(x-w/2,yH);c.quadraticCurveTo(x-w*.1,yH-hh*2,x+w/2,yH);c.fill()}
  // pulau dengan pohon kelapa & mercusuar
  const sp=1700,f=.5;
  for(let i=Math.floor((camX*f-300)/sp);i<=Math.floor((camX*f+W+300)/sp);i++){
@@ -112,6 +121,13 @@ function seaLayer(c,W,H,yH,yS,camX,t,f,a,fill,foam,rough){
   c.strokeStyle=`rgba(255,255,255,${.2+rough*.35})`;c.lineWidth=1.2+f*1.1;c.stroke();
   if(rough>.35){c.beginPath();for(let i=2;i<pts.length-2;i+=2){const s=pts[i+3]-pts[i-1];if(pts[i+1]<y0-amp*1.3&&Math.abs(s)>.5){c.moveTo(pts[i]-6,pts[i+1]+2);c.lineTo(pts[i]+6,pts[i+1]+2)}}c.strokeStyle=`rgba(255,255,255,${rough*.55})`;c.lineWidth=2.5*Math.max(.6,f);c.stroke()}}
 }
+function drawBuoys(c,camX,t,a,W,yS,sc){
+ for(let i=Math.floor((camX-200)/2600);i<=Math.floor((camX+W+200)/2600);i++){const wx=i*2600+hsh(i+3)*700,sx=wx-camX;if(sx<-60||sx>W+60)continue;
+  const y=yS-16*sc+waveH(wx,t,a*.95),z=sc*(.9+hsh(i)*.3),col=i%2?'#d8302a':'#2aa84a',tilt=Math.cos(wx*.012+t*1.7)*.12;
+  c.save();c.translate(sx,y);c.rotate(tilt);poly(c,[[-9*z,0],[9*z,0],[4*z,-26*z],[-4*z,-26*z]],col);R(c,-7*z,-14*z,14*z,4*z,'#fff');R(c,-1.2*z,-40*z,2.4*z,14*z,'#555');
+  const on=Math.sin(t*3+i)>0;c.fillStyle=on?(i%2?'#ff6a5a':'#6aff8a'):'#555';c.beginPath();c.arc(0,-42*z,3.2*z,0,7);c.fill();
+  if(on)pushGlow(c,0,-42*z,30*z,.9,i%2?'255,90,70':'90,255,130');c.restore()}
+}
 function drawSeaFar(c,W,H,yH,yS,camX,t,S,a,rough,hq){
  const g=c.createLinearGradient(0,yH,0,H);g.addColorStop(0,mix(S.bot,'#3aa5a0',.5));g.addColorStop(1,'#0f4e5c');c.fillStyle=g;c.fillRect(0,yH,W,H-yH);
  const fs=hq?[.1,.22,.36,.5,.64,.8]:[.3,.65];
@@ -125,6 +141,9 @@ function drawSeaFar(c,W,H,yH,yS,camX,t,S,a,rough,hq){
 // Pelabuhan
 function drawPort(c,p,sx,yH,u,t){
  const v=p.s%4,X=x=>sx+x*u;
+ for(let i=0;i<20;i++){const bx=-400+i*42+hsh(p.s*50+i)*14,bw=26+hsh(p.s*70+i)*22,bh=(v===3?26:v===2?40:50)+hsh(p.s*90+i)*(v===3?24:80);
+  R(c,X(bx),yH-bh*u,bw*u,bh*u,i%2?'#8a9db0':'#7a8ea2');R(c,X(bx),yH-bh*u,bw*u,3*u,'rgba(255,255,255,.25)');
+  if(NIGHT>.3)for(let q=0;q<bh/16-1;q++)for(let r=0;r<2;r++)if(hsh(i*13+q*5+r)>.45)R(c,X(bx+4+r*(bw/2)),yH-(q*16+22)*u,(bw/2-6)*u,7*u,'#ffe08a')}
  R(c,X(-230),yH,460*u,9*u,'#6b4a2c');R(c,X(-230),yH,460*u,3*u,'#8a6540');
  for(let x=-220;x<=220;x+=44)R(c,X(x),yH+9*u,6*u,24*u,'#4b3a28');
  for(let x=-210;x<=210;x+=105){R(c,X(x),yH-34*u,3*u,34*u,'#3a3f46');c.fillStyle='#ffe7a0';c.beginPath();c.arc(X(x+1.5),yH-36*u,4*u,0,7);c.fill();pushGlow(c,X(x+1.5),yH-36*u,36*u,.9)}
@@ -288,7 +307,7 @@ const cur=()=>SHIPS[save.sel],cnt=k=>ship.items.filter(i=>i.t===k).length;
 function spawn(p){
  if(p.q.length>=12)return;let d;do{d=ports[Math.random()*ports.length|0]}while(d===p);
  const tp=Math.random()<.55?'p':'c';
- p.q.push({t:tp,dest:d.id,pay:6000});
+ p.q.push({t:tp,dest:d.id,pay:10000});
 }
 ports.forEach(p=>{for(let i=0;i<6;i++)spawn(p)});
 // Kapal komputer: berlayar antar pelabuhan, sandar, lalu berangkat lagi
@@ -432,6 +451,7 @@ function render(){
  cx.textAlign='center';cx.lineJoin='round';
  drawBack(cx,W,H,yH,camX,t,sky);drawSeaFar(cx,W,H,yH,yS,camX,t,sky,a,rough,hq);
  ports.forEach(p=>{const sx=p.x-camX;if(sx<-500||sx>W+500)return;drawPort(cx,p,sx,yH,sc,t)});
+ drawBuoys(cx,camX,t,a,W,yS,sc);
  // kapal komputer (jalur belakang)
  npcs.forEach(n=>{const sx=n.x-camX,S2=SHIPS[n.sid];if(sx<-S2.len*sc-300||sx>W+S2.len*sc+300)return;
   const k2=sc*.8,Lh2=S2.len*k2*.5,aa=a*.9,l1=waveH(n.x-Lh2,t,aa),l2=waveH(n.x+Lh2,t,aa),y2=yS-30*sc+(l1+l2)/2;
@@ -515,15 +535,27 @@ function drawGauge(v,mx){
  c.fillStyle='#fff';c.font='bold 22px Trebuchet MS';c.fillText(Math.round(v),x0,y0-32);c.font='10px Trebuchet MS';c.fillStyle='#9fe3d0';c.fillText('KM/J',x0,y0-20);
 }
 function drawRoute(c,w,h,big){
- c.clearRect(0,0,w,h);c.fillStyle='rgba(8,34,48,.85)';c.fillRect(0,0,w,h);
- const p0=big?50:14,X=x=>p0+(w-2*p0)*x/WORLD.w,my=h*(big?.55:.55),want=new Set(ship.items.map(i=>i.dest));
- c.strokeStyle='#5fc7c0';c.lineWidth=big?4:3;c.beginPath();c.moveTo(X(0),my);c.lineTo(X(WORLD.w),my);c.stroke();
+ c.clearRect(0,0,w,h);const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0f4059');g.addColorStop(1,'#092a3c');c.fillStyle=g;c.fillRect(0,0,w,h);
+ const p0=big?50:14,X=x=>p0+(w-2*p0)*x/WORLD.w,my=h*.55,want=new Set(ship.items.map(i=>i.dest)),sp=big?1:.55;
+ c.strokeStyle='rgba(255,255,255,.06)';c.lineWidth=1;for(let r=0;r<(big?7:3);r++){c.beginPath();for(let x=0;x<=w;x+=8){const y=h*(.1+r*.14)+Math.sin(x*.05+r+t*.5)*2;x?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}
+ for(let i=0;i<(big?46:22);i++){const x=p0+hsh(i)*(w-2*p0),y=my+(hsh(i+50)-.5)*h*.85;if(Math.abs(y-my)<(big?64:10))continue;const rw=(big?8+hsh(i+9)*22:3+hsh(i+9)*7);
+  c.fillStyle='rgba(222,200,140,.5)';c.beginPath();c.ellipse(x,y,rw*1.15,rw*.5,0,0,7);c.fill();c.fillStyle='rgba(70,150,95,.75)';c.beginPath();c.ellipse(x,y-rw*.08,rw,rw*.42,0,0,7);c.fill()}
+ const N=big?160:70,lw=big?7:4;c.lineCap='butt';
+ c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=lw+3;c.beginPath();c.moveTo(X(0),my);c.lineTo(X(WORLD.w),my);c.stroke();
+ for(let i=0;i<N;i++){const x0=WORLD.w*i/N,x1=WORLD.w*(i+1)/N,r=roughAt((x0+x1)/2);c.strokeStyle=r<.3?'#5fc7c0':r<.55?'#9fd86a':r<.8?'#f2b84b':'#e2563f';c.lineWidth=lw;c.beginPath();c.moveTo(X(x0),my);c.lineTo(X(x1)+.6,my);c.stroke()}
  c.textAlign='center';
- ports.forEach((p,i)=>{const x=X(p.x),w2=want.has(p.id);c.fillStyle=w2?'#f2b84b':'#fff';c.beginPath();c.arc(x,my,w2?(big?9:5):(big?6:3.5),0,7);c.fill();
-  if(big){c.fillStyle='#fff';c.font='bold 15px Trebuchet MS';c.fillText(p.name,x,my+(i%2?34:-18));c.font='13px Trebuchet MS';c.fillStyle='#f6e7b4';c.fillText(`${p.q.length} menunggu`,x,my+(i%2?52:-36))}});
- npcs.forEach(n=>{c.fillStyle='#7fe3e0';c.beginPath();c.arc(X(n.x),my+(big?12:6),big?3.5:2,0,7);c.fill()});
- const sx=X(ship.x),z=big?1.7:1;c.fillStyle='#e2563f';c.beginPath();c.moveTo(sx,my-13*z);c.lineTo(sx-6*z,my-4*z);c.lineTo(sx+6*z,my-4*z);c.fill();
- c.strokeStyle='rgba(255,255,255,.5)';c.strokeRect(.5,.5,w-1,h-1);
+ ports.forEach((p,i)=>{const x=X(p.x),w2=want.has(p.id),r=w2?(big?10:5.5):(big?7:3.8);
+  if(w2){c.strokeStyle=`rgba(242,184,75,${.5+.4*Math.sin(t*4)})`;c.lineWidth=2;c.beginPath();c.arc(x,my,r+3+Math.sin(t*4)*1.5,0,7);c.stroke()}
+  c.fillStyle='#0b2a3a';c.beginPath();c.arc(x,my,r+1.5,0,7);c.fill();c.fillStyle=w2?'#f2b84b':'#fff';c.beginPath();c.arc(x,my,r,0,7);c.fill();c.fillStyle='#0b2a3a';c.beginPath();c.arc(x,my,r*.4,0,7);c.fill();
+  if(big){c.fillStyle='#fff';c.font='bold 15px Trebuchet MS';c.fillText(p.name,x,my+(i%2?36:-20));c.font='13px Trebuchet MS';c.fillStyle='#f6e7b4';c.fillText(`${p.q.length} menunggu`,x,my+(i%2?54:-38))}});
+ npcs.forEach(n=>{c.fillStyle='#7fe3e0';c.beginPath();c.arc(X(n.x),my+(big?13:7),big?3.5:2,0,7);c.fill()});
+ const sx=X(ship.x),z=big?1.7:1;c.fillStyle='rgba(226,86,63,.35)';c.beginPath();c.arc(sx,my,(big?14:8)+Math.sin(t*5)*2,0,7);c.fill();
+ c.fillStyle='#e2563f';c.beginPath();c.moveTo(sx,my-13*z);c.lineTo(sx-6*z,my-4*z);c.lineTo(sx+6*z,my-4*z);c.fill();c.strokeStyle='#fff';c.lineWidth=1;c.stroke();
+ if(big){c.textAlign='left';c.font='bold 13px Trebuchet MS';c.fillStyle='#cfe6ee';c.fillText(`PETA RUTE · ${(WORLD.w/KM).toFixed(0)} km`,14,22);
+  [['#5fc7c0','Tenang'],['#9fd86a','Sedang'],['#f2b84b','Tinggi'],['#e2563f','Badai']].forEach((q,i)=>{c.fillStyle=q[0];c.fillRect(14+i*86,h-26,14,6);c.fillStyle='#cfe6ee';c.font='12px Trebuchet MS';c.fillText(q[1],32+i*86,h-20)});
+  c.fillStyle='#7fe3e0';c.beginPath();c.arc(w-170,h-23,3.5,0,7);c.fill();c.fillStyle='#cfe6ee';c.fillText('Kapal lain',w-160,h-19);
+  c.textAlign='center';c.fillStyle='#fff';c.font='bold 14px Trebuchet MS';c.fillText('U',w-24,28);c.strokeStyle='#fff';c.beginPath();c.moveTo(w-24,34);c.lineTo(w-24,52);c.moveTo(w-30,41);c.lineTo(w-24,34);c.lineTo(w-18,41);c.stroke()}
+ c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=1;c.strokeRect(.5,.5,w-1,h-1);
 }
 function toggleMap(){const o=$('mapov');if(o.classList.contains('hide')){const w=Math.min(innerWidth*.94,1100);bigC.width=w;bigC.height=230;bigC.style.width=w+'px';bigC.style.height='230px';o.classList.remove('hide')}else o.classList.add('hide')}
 
