@@ -11,7 +11,10 @@ const SHIPS=[
  {id:6,kind:'speed',name:'Speedboat Kilat',price:5200,speed:360,acc:1.6,pass:4,cargo:2,len:110,h:14,hull:'#f2f5f7',bot:'#c8321f',acc2:'#1f6fb5'},
  {id:7,kind:'tanker',name:'Tanker Raksasa',price:9000,speed:250,acc:.6,pass:4,cargo:48,len:430,h:34,hull:'#8c2f2a',bot:'#1b1f26',acc2:'#f2b84b'},
  {id:8,kind:'navy',name:'KRI Garuda',price:17000,speed:380,acc:1.1,pass:20,cargo:14,len:340,h:28,hull:'#8b979f',bot:'#3e4852',acc2:'#c9d1d6'},
- {id:9,kind:'jet',name:'Jetfoil Kencana',price:26000,speed:430,acc:1.4,pass:60,cargo:10,len:260,h:22,hull:'#f6f9fb',bot:'#12507c',acc2:'#18b0c9'}
+ {id:9,kind:'jet',name:'Jetfoil Kencana',price:26000,speed:430,acc:1.4,pass:60,cargo:10,len:260,h:22,hull:'#f6f9fb',bot:'#12507c',acc2:'#18b0c9'},
+ {id:10,kind:'jukung',name:'Jukung Bali',price:100,speed:200,acc:1,pass:3,cargo:2,len:120,h:13,hull:'#c9622f',bot:'#5a2a14',acc2:'#f2d36b'},
+ {id:11,kind:'fish',name:'Kapal Nelayan',price:350,speed:205,acc:1.1,pass:4,cargo:6,len:170,h:22,hull:'#2f6fa3',bot:'#8a2a22',acc2:'#f2b84b'},
+ {id:12,kind:'cargo',name:'Kapal Barang Mini',price:700,speed:210,acc:1,pass:5,cargo:14,len:210,h:26,hull:'#3f6f5a',bot:'#7a2f26',acc2:'#f2b84b'}
 ];
 SHIPS.forEach(s=>s.price*=4); // upah naik, harga kapal disesuaikan
 const NAMES=['Belawan','Tanjung Priok','Semarang','Surabaya','Benoa','Labuan Bajo','Makassar','Ambon','Ternate','Sorong'];
@@ -158,7 +161,7 @@ function hullPath(c,L,h,d){c.beginPath();c.moveTo(-L/2,-h);c.quadraticCurveTo(L*
 function wins(c,x,y,w,hh,n,f){const g=w/n,lit=NIGHT>.3;for(let i=0;i<n;i++){const xx=x+g*(i+.2),on=lit&&((i*7)%5);R(c,xx,y,g*.6,hh,on?'#ffe08a':f);if(on&&i%2===0)pushGlow(c,xx+g*.3,y+hh/2,Math.max(5,hh*1.1),.55)}}
 function ring(c,x,y,r){c.fillStyle='#ff8a2a';c.beginPath();c.arc(x,y,r,0,7);c.fill();c.fillStyle='#fff';c.beginPath();c.arc(x,y,r*.45,0,7);c.fill()}
 // posisi cerobong asap (pecahan panjang, kelipatan tinggi) untuk asap
-const FUNNEL={tug:[-.065,2.6],ferry:[-.16,2.5],cargo:[-.375,3.3],cruise:[-.05,3.6],tanker:[-.4,3.2],navy:[-.19,2.1]};
+const FUNNEL={fish:[-.1,1.5],tug:[-.065,2.6],ferry:[-.16,2.5],cargo:[-.375,3.3],cruise:[-.05,3.6],tanker:[-.4,3.2],navy:[-.19,2.1]};
 // y = garis air, kapal menghadap kanan (dir=-1 membalik), ang = kemiringan mengikuti ombak
 function drawShip(c,s,x,y,dir,k,ang){
  const L=s.len*k,h=s.h*k,d=h*.5,T=-h,K=s.kind,W='#fff',G='#2b4a5e',A=s.acc2;
@@ -174,9 +177,9 @@ function drawShip(c,s,x,y,dir,k,ang){
  // detail umum: tepi geladak, pagar, haluan, bendera merah-putih, sekoci
  const lw=Math.max(1.5,1.6*k);c.lineWidth=lw;c.strokeStyle='rgba(255,255,255,.5)';c.beginPath();c.moveTo(-L/2,-h);c.quadraticCurveTo(L*.1,-h*.97,L/2+h*.5,-h*1.22);c.stroke();
  c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=Math.max(1.2,1.4*k);c.beginPath();c.moveTo(L/2-h*.5,d);c.quadraticCurveTo(L/2+h*.12,d*.05,L/2+h*.5,-h*1.22);c.stroke();
- if(K!=='sail'&&K!=='speed'&&K!=='pinisi'){c.strokeStyle='rgba(235,240,244,.85)';c.lineWidth=Math.max(1,.8*k);c.beginPath();c.moveTo(-L*.47,T-h*.28);c.lineTo(L*.5,T-h*.28);
+ if(K!=='sail'&&K!=='speed'&&K!=='pinisi'&&K!=='jukung'){c.strokeStyle='rgba(235,240,244,.85)';c.lineWidth=Math.max(1,.8*k);c.beginPath();c.moveTo(-L*.47,T-h*.28);c.lineTo(L*.5,T-h*.28);
   for(let q=-L*.47;q<L*.5;q+=h*.6){c.moveTo(q,T);c.lineTo(q,T-h*.28)}c.stroke()}
- if(K!=='sail'&&K!=='speed'){const fx0=-L*.5+h*.15,fh=h*.85;R(c,fx0,T-fh,Math.max(1.2,1.4*k),fh,'#cfd4d8');R(c,fx0+1.4*k,T-fh,h*.55,h*.17,'#d8302a');R(c,fx0+1.4*k,T-fh+h*.17,h*.55,h*.17,'#fff')}
+ if(K!=='sail'&&K!=='speed'&&K!=='jukung'){const fx0=-L*.5+h*.15,fh=h*.85;R(c,fx0,T-fh,Math.max(1.2,1.4*k),fh,'#cfd4d8');R(c,fx0+1.4*k,T-fh,h*.55,h*.17,'#d8302a');R(c,fx0+1.4*k,T-fh+h*.17,h*.55,h*.17,'#fff')}
  const boat=(x,y,w)=>{c.fillStyle='#ff8a2a';c.beginPath();c.ellipse(x,y,w/2,w*.2,0,0,Math.PI);c.fill();R(c,x-w/2,y-w*.06,w,w*.08,'#fff')};
  if(K==='sail'){
   tri([-L*.09,T],[-L*.09,-L*.9],[-L*.46,T],W);tri([-L*.09,T],[-L*.09,T-L*.2],[-L*.32,T],A);
@@ -185,6 +188,22 @@ function drawShip(c,s,x,y,dir,k,ang){
   c.strokeStyle='rgba(120,130,140,.7)';c.lineWidth=Math.max(1,.8*k);c.beginPath();c.moveTo(-L*.06,-L*.93);c.lineTo(L*.42,T);c.moveTo(-L*.06,-L*.93);c.lineTo(-L*.47,T);
   for(let i=1;i<4;i++){c.moveTo(-L*.09,T-(L*.78)*i/4);c.lineTo(-L*.09-L*.37*(1-i/4)*.95,T-h*.1)}c.stroke();
   poly(c,[[-L*.02,T],[L*.02,T-h*.5],[L*.2,T-h*.5],[L*.24,T]],'#f2f2f2');R(c,L*.05,T-h*.38,L*.12,h*.2,'#2b4a5e');
+ }else if(K==='jukung'){
+  c.fillStyle='#d9b36a';c.beginPath();c.ellipse(-L*.02,d*.7,L*.4,h*.1,0,0,7);c.fill();
+  c.strokeStyle='#8a6a34';c.lineWidth=Math.max(1.5,1.8*k);c.beginPath();c.moveTo(-L*.2,T);c.lineTo(-L*.25,d*.6);c.moveTo(L*.2,T);c.lineTo(L*.2,d*.6);c.stroke();
+  R(c,-L*.02-1.2*k,-L*.95,2.4*k,L*.95-h,'#6b4a2c');
+  poly(c,[[-L*.02,T-h*.2],[-L*.02,-L*.9],[-L*.4,T-h*.2]],'#d8302a');poly(c,[[-L*.02,T-h*.2],[-L*.02,-L*.55],[-L*.27,T-h*.2]],'#fff');
+  poly(c,[[-L*.02,-L*.9],[-L*.02,-L*.82],[L*.1,-L*.86]],'#f2d36b');mh=[-L*.02,-L*.95];
+ }else if(K==='fish'){
+  const net=['#e2563f','#f2b84b'];
+  R(c,-L*.2,T-h*.9,L*.06,h*.9,'#d9d9d9');
+  poly(c,[[-L*.02,T],[L*.0,T-h*1.25],[L*.22,T-h*1.25],[L*.26,T]],W);R(c,L*.0,T-h*1.35,L*.22,h*.1,s.bot);
+  wins(c,L*.02,T-h*1.05,L*.18,h*.35,3,G);
+  R(c,-L*.1,T-h*1.9,L*.03,h*1.25,'#ddd');R(c,L*.12,T-h*2.3,1.5*k,h*1.05,'#ddd');
+  c.strokeStyle='#999';c.lineWidth=Math.max(1,.8*k);c.beginPath();c.moveTo(-L*.085,T-h*1.85);c.lineTo(-L*.42,T-h*.2);c.moveTo(-L*.085,T-h*1.85);c.lineTo(L*.13,T-h*2.2);c.stroke();
+  c.fillStyle='#ff8a2a';c.beginPath();c.ellipse(-L*.32,T-h*.38,L*.06,h*.38,0,0,7);c.fill();c.strokeStyle='rgba(0,0,0,.25)';c.stroke();
+  for(let i=0;i<4;i++){c.fillStyle=net[i%2];c.beginPath();c.arc(L*.32+i*L*.035,T-h*.13,h*.12,0,7);c.fill()}
+  R(c,-L*.2,T-h*.6,L*.04,h*.6,'#444');mh=[L*.12,T-h*2.3];
  }else if(K==='pinisi'){
   const mc='#5a3a22';
   R(c,-L*.46,T-h*.75,L*.2,h*.75,'#7a4a26');R(c,-L*.47,T-h*.8,L*.22,3*k,'#c9953f');R(c,-L*.43,T-h*.55,L*.05,h*.28,'#ffe2a0');R(c,-L*.36,T-h*.55,L*.05,h*.28,'#ffe2a0');
@@ -269,11 +288,11 @@ const cur=()=>SHIPS[save.sel],cnt=k=>ship.items.filter(i=>i.t===k).length;
 function spawn(p){
  if(p.q.length>=12)return;let d;do{d=ports[Math.random()*ports.length|0]}while(d===p);
  const tp=Math.random()<.55?'p':'c';
- p.q.push({t:tp,dest:d.id,pay:3000});
+ p.q.push({t:tp,dest:d.id,pay:6000});
 }
 ports.forEach(p=>{for(let i=0;i<6;i++)spawn(p)});
 // Kapal komputer: berlayar antar pelabuhan, sandar, lalu berangkat lagi
-const npcs=[2,3,4,7,8,5,9,1,6,0,2,7].map((id,i)=>{const a=i%9,f=Math.random(),tg=Math.random()<.5?a:a+1;return{sid:id,x:ports[a].x+(ports[a+1].x-ports[a].x)*f,v:SHIPS[id].speed*.3,dir:1,tg,wait:0}});
+const npcs=[2,3,4,7,8,5,9,1,6,0,10,11,12,2,7].map((id,i)=>{const a=i%9,f=Math.random(),tg=Math.random()<.5?a:a+1;return{sid:id,x:ports[a].x+(ports[a+1].x-ports[a].x)*f,v:SHIPS[id].speed*.3,dir:1,tg,wait:0}});
 function updateNpcs(dt){npcs.forEach(n=>{const S=SHIPS[n.sid],dx=ports[n.tg].x-n.x,d=Math.abs(dx);if(n.wait<=0)n.dir=dx>=0?1:-1;
  if(n.wait>0){n.wait-=dt;n.v=Math.max(0,n.v-80*dt);if(n.wait<=0){let c=n.tg+(Math.random()<.5?-1:1);if(c<0)c=1;if(c>=ports.length)c=ports.length-2;n.tg=c}}
  else if(d<stopDist(n.v)*1.1+120){n.v=Math.max(25,n.v-(50+n.v*.5)*dt)}
@@ -321,7 +340,7 @@ const A={
   this.wake.g.gain.setTargetAtTime(.02+r*.2+(brk&&r>.15?.08:0),n,.15);
   this.wake.fl.frequency.setTargetAtTime(900+r*1400,n,.2);
   this.rain.g.gain.setTargetAtTime(pl?storm*.1:0,n,.4);
-  const base={tug:46,ferry:56,cargo:38,cruise:64,speed:92,tanker:30,navy:60,jet:110}[S.kind]||50,eng=pl&&S.kind!=='sail'&&S.kind!=='pinisi';
+  const base={tug:46,ferry:56,cargo:38,cruise:64,speed:92,tanker:30,navy:60,jet:110,fish:52}[S.kind]||50,eng=pl&&S.kind!=='sail'&&S.kind!=='pinisi'&&S.kind!=='jukung';
   this.eg.gain.setTargetAtTime(eng?.05+r*.07+(gas?.03:0):0,n,.2);
   this.o1.frequency.setTargetAtTime(base*(1+r*1.1),n,.15);this.o2.frequency.setTargetAtTime(base*.5*(1+r*1.1),n,.15);
   this.cl.frequency.setTargetAtTime(S.kind==='tug'||S.kind==='cargo'||S.kind==='tanker'?5+r*9:11+r*14,n,.2);
@@ -330,7 +349,7 @@ const A={
  hornOn(){
   if(!this.ac||this.h)return;const ac=this.ac,n=ac.currentTime,g=ac.createGain(),lp=ac.createBiquadFilter();
   lp.type='lowpass';lp.frequency.value=1000;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(.22,n+.06);
-  const f={sail:[330,415],pinisi:[260,330],tug:[150,190],ferry:[120,150],cargo:[82,103],cruise:[98,123],speed:[400,500],tanker:[70,88],navy:[110,140],jet:[200,250]}[cur().kind];
+  const f={sail:[330,415],pinisi:[260,330],tug:[150,190],ferry:[120,150],cargo:[82,103],cruise:[98,123],speed:[400,500],tanker:[70,88],navy:[110,140],jet:[200,250],jukung:[300,380],fish:[180,230]}[cur().kind];
   const os=f.flatMap(x=>[x,x*1.005]).map(x=>{const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=x;o.connect(lp);o.start();return o});
   lp.connect(g);g.connect(this.m);this.h={g,os};
  },
@@ -527,7 +546,7 @@ function renderShop(){
   const own=save.owned.includes(s.id),el=document.createElement('div');el.className='card'+(save.sel===s.id?' on':'');
   el.innerHTML=`<canvas width="260" height="130"></canvas><h3>${s.name}</h3>${bar('Kecepatan',s.speed,450,s.speed+' km/j')}${bar('Penumpang',s.pass,60,s.pass)}${bar('Kargo',s.cargo,48,s.cargo)}${bar('Akselerasi',s.acc,1.6,'')}<button></button>`;
   const c=el.querySelector('canvas').getContext('2d'),gr=c.createLinearGradient(0,0,0,130);gr.addColorStop(0,'#9fc3cf');gr.addColorStop(.7,'#e0eae6');gr.addColorStop(.7,'#3aa58f');gr.addColorStop(1,'#1f6f74');c.fillStyle=gr;c.fillRect(0,0,260,130);
-  const tall=s.kind==='sail'?s.len*.95:s.kind==='pinisi'?s.len:s.kind==='speed'?s.h*2.4:s.h*3.9;
+  const tall=s.kind==='sail'?s.len*.95:s.kind==='pinisi'?s.len:s.kind==='jukung'?s.len*1.0:s.kind==='speed'?s.h*2.4:s.h*3.9;
   const k=Math.min(215/s.len,92/tall);
   drawShip(c,s,130,96,1,k,0);c.fillStyle='rgba(24,108,112,.8)';c.fillRect(0,96,260,34);c.fillStyle='rgba(255,255,255,.5)';c.fillRect(0,96,260,2);
   const b=el.querySelector('button');
