@@ -14,9 +14,13 @@ const SHIPS=[
  {id:9,kind:'jet',name:'Jetfoil Kencana',price:26000,speed:430,acc:1.4,pass:60,cargo:10,len:260,h:22,hull:'#f6f9fb',bot:'#12507c',acc2:'#18b0c9'},
  {id:10,kind:'jukung',name:'Jukung Bali',price:100,speed:200,acc:1,pass:3,cargo:2,len:120,h:13,hull:'#c9622f',bot:'#5a2a14',acc2:'#f2d36b'},
  {id:11,kind:'fish',name:'Kapal Nelayan',price:350,speed:205,acc:1.1,pass:4,cargo:6,len:170,h:22,hull:'#2f6fa3',bot:'#8a2a22',acc2:'#f2b84b'},
- {id:12,kind:'cargo',name:'Kapal Barang Mini',price:700,speed:210,acc:1,pass:5,cargo:14,len:210,h:26,hull:'#3f6f5a',bot:'#7a2f26',acc2:'#f2b84b'}
+ {id:12,kind:'cargo',name:'Kapal Barang Mini',price:700,speed:210,acc:1,pass:5,cargo:14,len:210,h:26,hull:'#3f6f5a',bot:'#7a2f26',acc2:'#f2b84b'},
+ {id:13,kind:'yacht',name:'Mega Yacht Cakra',price:30000,speed:400,acc:1.3,pass:30,cargo:8,len:300,h:24,hull:'#f7f9fa',bot:'#1b2a3a',acc2:'#c9a24a'},
+ {id:14,kind:'sar',name:'Kapal SAR Basarnas',price:3500,speed:255,acc:1.4,pass:12,cargo:20,len:230,h:26,hull:'#e2552f',bot:'#1b1f26',acc2:'#ffffff'},
+ {id:15,kind:'lng',name:'Tanker LNG Nusantara',price:14000,speed:230,acc:.55,pass:3,cargo:60,len:450,h:36,hull:'#2e4a66',bot:'#a02f27',acc2:'#e8edf0'},
+ {id:16,kind:'pinisi',name:'Pinisi Emas',price:8000,speed:225,acc:1.1,pass:30,cargo:10,len:250,h:40,hull:'#b8862f',bot:'#5a3a14',acc2:'#f2e2a0'}
 ];
-SHIPS.forEach(s=>s.price*=4); // upah naik, harga kapal disesuaikan
+SHIPS.forEach(s=>{s.speed=Math.round(s.speed*1.3/10)*10;s.price*=15}); // kecepatan x1.3, harga disesuaikan dengan upah 30.000
 const NAMES=['Belawan','Tanjung Priok','Semarang','Surabaya','Benoa','Labuan Bajo','Makassar','Ambon','Ternate','Sorong'];
 const GAPS=[25000,31000,22000,28000,34000,24000,30000,27000,32000]; // jarak antar pelabuhan (px) ~ 3.4 - 5.2 km
 let _px=1800;
@@ -51,7 +55,8 @@ function getSky(t){
 const todName=p=>p<.08?'Fajar':p<.3?'Pagi':p<.55?'Siang':p<.7?'Sore':p<.78?'Senja':'Malam';
 
 // Ombak: tinggi permukaan laut di posisi dunia u (dipakai laut & kapal agar kapal benar-benar menunggangi ombak)
-function waveH(u,t,a){return a*(Math.sin(u*.012+t*1.7)+.45*Math.sin(u*.027-t*2.3)+1.6*Math.sin(u*.0045+t*.9)+.25*Math.sin(u*.06+t*3.1))}
+function waveH(u,t,a){const p=Math.sin(u*.012+t*1.7),q=p>0?Math.pow(p,.72):-Math.pow(-p,1.4); // puncak runcing, lembah landai
+ return a*(q+.45*Math.sin(u*.027-t*2.3)+1.6*Math.sin(u*.0045+t*.9)+.25*Math.sin(u*.06+t*3.1)+.4*Math.sin(u*.0021+t*.5))}
 
 function drawBack(c,W,H,yH,camX,t,S){
  const g=c.createLinearGradient(0,0,0,yH);g.addColorStop(0,S.top);g.addColorStop(1,S.bot);c.fillStyle=g;c.fillRect(0,0,W,yH+2);
@@ -118,7 +123,7 @@ function seaLayer(c,W,H,yH,yS,camX,t,f,a,fill,foam,rough){
  for(let x=-10;x<=W+12;x+=10){const y=y0+waveH(x+camX*f,t,amp);pts.push(x,y);c.lineTo(x,y)}
  c.lineTo(W+12,H+4);c.closePath();c.fillStyle=fill;c.fill();
  if(foam){c.beginPath();for(let i=0;i<pts.length;i+=2)i?c.lineTo(pts[i],pts[i+1]):c.moveTo(pts[i],pts[i+1]);
-  c.strokeStyle=`rgba(255,255,255,${.2+rough*.35})`;c.lineWidth=1.2+f*1.1;c.stroke();
+  c.strokeStyle=`rgba(255,255,255,${.2+rough*.4})`;c.lineWidth=1.2+f*1.1;c.stroke();c.save();c.translate(0,3*f);c.strokeStyle='rgba(255,255,255,.09)';c.lineWidth=5+f*3;c.stroke();c.restore();
   if(rough>.35){c.beginPath();for(let i=2;i<pts.length-2;i+=2){const s=pts[i+3]-pts[i-1];if(pts[i+1]<y0-amp*1.3&&Math.abs(s)>.5){c.moveTo(pts[i]-6,pts[i+1]+2);c.lineTo(pts[i]+6,pts[i+1]+2)}}c.strokeStyle=`rgba(255,255,255,${rough*.55})`;c.lineWidth=2.5*Math.max(.6,f);c.stroke()}}
 }
 function drawBuoys(c,camX,t,a,W,yS,sc){
@@ -173,6 +178,12 @@ function drawPort(c,p,sx,yH,u,t){
  else if(v===1){tower(-190);house(-110,150,'#3e6a8a',80);crane(90)}
  else if(v===2){boxes(-215,5);gantry(0);boxes(130,2)}
  else{light(-200);hut(-130,50,'#d9b86a');hut(-70,60,'#c07a54');hut(0,46,'#6aa0b0');house(70,150,'#8a5a3a',58)}
+ {const np=p.q.filter(i=>i.t==='p').length,nc=p.q.length-np,cl=['#e2563f','#2f7fb5','#f2b84b','#4f9a56','#8e5bb5','#e08a3c'];
+  for(let i=0;i<np;i++){const x=-215+i*17+hsh(p.s*31+i)*5,hh=(20+hsh(i+p.s)*5)*u,bob=Math.abs(Math.sin(t*2+i*1.7))*1.2*u*(i%3===0);
+   R(c,X(x),yH-hh*.62-bob,5*u,hh*.4,'#394a58');R(c,X(x-1),yH-hh*.96-bob,7*u,hh*.36,cl[(i+p.s)%6]);c.fillStyle='#f0c8a0';c.beginPath();c.arc(X(x+2.5),yH-hh*1.06-bob,3.2*u,0,7);c.fill();
+   if(i%4===1)R(c,X(x+6),yH-hh*.5,5*u,7*u,'#8a5a34')}
+  for(let i=0;i<nc;i++){const x0=60+(i%6)*24,lv=Math.floor(i/6),y0=yH-(lv+1)*17*u;
+   R(c,X(x0),y0,22*u,16*u,i%3?'#b88a4a':'#a77a3c');R(c,X(x0),y0,22*u,2.5*u,'rgba(255,255,255,.25)');R(c,X(x0+9),y0,4*u,16*u,'rgba(60,35,10,.55)');R(c,X(x0),y0+6*u,22*u,3*u,'rgba(60,35,10,.4)')}}
  flag(212);
 }
 
@@ -180,7 +191,7 @@ function hullPath(c,L,h,d){c.beginPath();c.moveTo(-L/2,-h);c.quadraticCurveTo(L*
 function wins(c,x,y,w,hh,n,f){const g=w/n,lit=NIGHT>.3;for(let i=0;i<n;i++){const xx=x+g*(i+.2),on=lit&&((i*7)%5);R(c,xx,y,g*.6,hh,on?'#ffe08a':f);if(on&&i%2===0)pushGlow(c,xx+g*.3,y+hh/2,Math.max(5,hh*1.1),.55)}}
 function ring(c,x,y,r){c.fillStyle='#ff8a2a';c.beginPath();c.arc(x,y,r,0,7);c.fill();c.fillStyle='#fff';c.beginPath();c.arc(x,y,r*.45,0,7);c.fill()}
 // posisi cerobong asap (pecahan panjang, kelipatan tinggi) untuk asap
-const FUNNEL={fish:[-.1,1.5],tug:[-.065,2.6],ferry:[-.16,2.5],cargo:[-.375,3.3],cruise:[-.05,3.6],tanker:[-.4,3.2],navy:[-.19,2.1]};
+const FUNNEL={lng:[-.4,3.2],fish:[-.1,1.5],tug:[-.065,2.6],ferry:[-.16,2.5],cargo:[-.375,3.3],cruise:[-.05,3.6],tanker:[-.4,3.2],navy:[-.19,2.1]};
 // y = garis air, kapal menghadap kanan (dir=-1 membalik), ang = kemiringan mengikuti ombak
 function drawShip(c,s,x,y,dir,k,ang){
  const L=s.len*k,h=s.h*k,d=h*.5,T=-h,K=s.kind,W='#fff',G='#2b4a5e',A=s.acc2;
@@ -207,6 +218,27 @@ function drawShip(c,s,x,y,dir,k,ang){
   c.strokeStyle='rgba(120,130,140,.7)';c.lineWidth=Math.max(1,.8*k);c.beginPath();c.moveTo(-L*.06,-L*.93);c.lineTo(L*.42,T);c.moveTo(-L*.06,-L*.93);c.lineTo(-L*.47,T);
   for(let i=1;i<4;i++){c.moveTo(-L*.09,T-(L*.78)*i/4);c.lineTo(-L*.09-L*.37*(1-i/4)*.95,T-h*.1)}c.stroke();
   poly(c,[[-L*.02,T],[L*.02,T-h*.5],[L*.2,T-h*.5],[L*.24,T]],'#f2f2f2');R(c,L*.05,T-h*.38,L*.12,h*.2,'#2b4a5e');
+ }else if(K==='yacht'){
+  poly(c,[[-L*.38,T],[-L*.38,T-h*.72],[L*.2,T-h*.72],[L*.32,T]],W);wins(c,-L*.36,T-h*.58,L*.52,h*.28,14,'#1b3550');R(c,-L*.38,T-h*.72,L*.58,2*k,A);
+  poly(c,[[-L*.32,T-h*.72],[-L*.3,T-h*1.35],[L*.08,T-h*1.35],[L*.17,T-h*.72]],W);wins(c,-L*.29,T-h*1.18,L*.36,h*.26,10,'#1b3550');R(c,-L*.32,T-h*1.35,L*.42,2*k,A);
+  poly(c,[[-L*.2,T-h*1.35],[-L*.18,T-h*1.85],[0,T-h*1.85],[L*.05,T-h*1.35]],'#f0f5f8');wins(c,-L*.17,T-h*1.74,L*.17,h*.22,5,'#1b3550');
+  R(c,-L*.1,T-h*2.9,1.6*k,h*1.05,'#ddd');c.fillStyle='#555';c.beginPath();c.ellipse(-L*.09,T-h*2.5,L*.03,h*.07,0,0,7);c.fill();
+  R(c,L*.2,T-h*.3,L*.09,h*.3,'#9bd6e8');R(c,L*.3,T-h*.08,L*.12,h*.08,'#4a525a');boat(-L*.37,T-h*.74,L*.06);mh=[-L*.09,T-h*2.9];
+ }else if(K==='sar'){
+  poly(c,[[-L*.12,T],[-L*.1,T-h*1.2],[L*.14,T-h*1.2],[L*.2,T]],W);R(c,-L*.12,T-h*1.22,L*.34,2*k,'#d8302a');wins(c,-L*.08,T-h*1.0,L*.2,h*.34,5,G);
+  poly(c,[[-L*.06,T-h*1.2],[-L*.04,T-h*1.9],[L*.1,T-h*1.9],[L*.13,T-h*1.2]],'#f4f6f7');wins(c,-L*.03,T-h*1.78,L*.12,h*.26,4,'#1f3340');
+  R(c,-L*.02,T-h*2.04,L*.1,h*.14,'#2a6fe0');R(c,L*.03,T-h*3.0,1.8*k,h*1.0,'#ddd');R(c,-L*.1,T-h*2.3,1.4*k,h*.4,'#ddd');
+  c.strokeStyle='#f2b84b';c.lineWidth=Math.max(2,2.6*k);c.beginPath();c.moveTo(-L*.4,T);c.lineTo(-L*.4,T-h*1.5);c.lineTo(-L*.29,T-h*1.9);c.stroke();
+  c.strokeStyle='#aaa';c.lineWidth=Math.max(1,.9*k);c.beginPath();c.moveTo(-L*.29,T-h*1.9);c.lineTo(-L*.29,T-h*.95);c.stroke();R(c,-L*.3,T-h*.98,L*.02,h*.1,'#444');
+  poly(c,[[-L*.34,T],[-L*.2,T],[-L*.22,T-h*.4],[-L*.32,T-h*.4]],'#ff8a2a');R(c,-L*.34,T-h*.2,L*.14,h*.07,W);
+  R(c,L*.28,T-h*.5,L*.05,h*.5,'#d8d8d8');
+  if(NIGHT>.3&&Math.sin(t*8)>0)pushGlow(c,L*.04,T-h*1.97,26*k+12,1,'60,120,255');mh=[L*.03,T-h*3.0];
+ }else if(K==='lng'){
+  R(c,-L*.46,T-h*2.5,L*.14,h*2.5,'#f2f2f2');for(let i=0;i<4;i++)wins(c,-L*.45,T-h*2.3+i*h*.55,L*.12,h*.25,3,G);
+  R(c,-L*.43,T-h*3.2,L*.055,h*.75,'#2a2a2a');R(c,-L*.43,T-h*2.8,L*.055,h*.16,A);
+  for(let i=0;i<4;i++){const x0=-L*.2+i*L*.16,r=L*.065,g=c.createRadialGradient(x0-r*.35,T-r*.6,r*.1,x0,T,r);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#b3c2ce');
+   c.fillStyle=g;c.beginPath();c.arc(x0,T,r,Math.PI,0);c.fill();c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=1;c.stroke();R(c,x0-r*1.05,T-h*.1,r*2.1,h*.1,'#7d8a94')}
+  R(c,-L*.3,T-h*.12,L*.72,2.5*k,'#aab3b9');R(c,L*.38,T-h*.85,L*.03,h*.85,'#bbb');mh=[-L*.4,T-h*3.2];
  }else if(K==='jukung'){
   c.fillStyle='#d9b36a';c.beginPath();c.ellipse(-L*.02,d*.7,L*.4,h*.1,0,0,7);c.fill();
   c.strokeStyle='#8a6a34';c.lineWidth=Math.max(1.5,1.8*k);c.beginPath();c.moveTo(-L*.2,T);c.lineTo(-L*.25,d*.6);c.moveTo(L*.2,T);c.lineTo(L*.2,d*.6);c.stroke();
@@ -299,7 +331,7 @@ function resize(){const d=Math.min(devicePixelRatio||1,2);DPR=d;W=innerWidth;H=i
 addEventListener('resize',resize);resize();
 
 const save=loadSave();
-let mode='menu',ship=null,t=0,off=0,fx=[],lines=[],fxT=0,smokeT=0,angS=0,storm=0,flash=0,bolt=0,wxState=0,lineT=0;
+let mode='menu',ship=null,t=0,off=0,fx=[],lines=[],fxT=0,smokeT=0,angS=0,storm=0,flash=0,bolt=0,wxState=0,lineT=0,slamT=3,shakeT=0;
 const keys={},pedal={gas:false,brake:false};
 const ports=PORTS.map((p,i)=>({...p,id:i,q:[],tm:3+i*.7,cool:0}));
 const cur=()=>SHIPS[save.sel],cnt=k=>ship.items.filter(i=>i.t===k).length;
@@ -307,11 +339,11 @@ const cur=()=>SHIPS[save.sel],cnt=k=>ship.items.filter(i=>i.t===k).length;
 function spawn(p){
  if(p.q.length>=12)return;let d;do{d=ports[Math.random()*ports.length|0]}while(d===p);
  const tp=Math.random()<.55?'p':'c';
- p.q.push({t:tp,dest:d.id,pay:10000});
+ p.q.push({t:tp,dest:d.id,pay:30000});
 }
 ports.forEach(p=>{for(let i=0;i<6;i++)spawn(p)});
 // Kapal komputer: berlayar antar pelabuhan, sandar, lalu berangkat lagi
-const npcs=[2,3,4,7,8,5,9,1,6,0,10,11,12,2,7].map((id,i)=>{const a=i%9,f=Math.random(),tg=Math.random()<.5?a:a+1;return{sid:id,x:ports[a].x+(ports[a+1].x-ports[a].x)*f,v:SHIPS[id].speed*.3,dir:1,tg,wait:0}});
+const npcs=[2,3,4,7,8,5,9,1,6,0,10,11,12,13,14,15,16,2,7].map((id,i)=>{const a=i%9,f=Math.random(),tg=Math.random()<.5?a:a+1;return{sid:id,x:ports[a].x+(ports[a+1].x-ports[a].x)*f,v:SHIPS[id].speed*.3,dir:1,tg,wait:0}});
 function updateNpcs(dt){npcs.forEach(n=>{const S=SHIPS[n.sid],dx=ports[n.tg].x-n.x,d=Math.abs(dx);if(n.wait<=0)n.dir=dx>=0?1:-1;
  if(n.wait>0){n.wait-=dt;n.v=Math.max(0,n.v-80*dt);if(n.wait<=0){let c=n.tg+(Math.random()<.5?-1:1);if(c<0)c=1;if(c>=ports.length)c=ports.length-2;n.tg=c}}
  else if(d<stopDist(n.v)*1.1+120){n.v=Math.max(25,n.v-(50+n.v*.5)*dt)}
@@ -322,7 +354,7 @@ function newShip(){ship={x:ports[0].x-300,v:0,dir:1,items:[],sid:save.sel,cruise
 
 // Cuaca: laut tenang dekat pelabuhan, makin ganas di laut lepas
 function roughAt(x){let d=1e9;for(const p of ports)d=Math.min(d,Math.abs(p.x-x));
- const base=clamp((d-3500)/7000,0,1),zone=.35+.65*(.5+.5*Math.sin(x*.00004+1.3));return clamp(base*zone*1.15,0,1)}
+ const base=clamp((d-2500)/5000,0,1),zone=.4+.6*(.5+.5*Math.sin(x*.00004+1.3));return clamp(base*zone*1.35,0,1)}
 // jarak henti (px) dari kecepatan v (km/j) sampai 25 km/j dengan rem penuh
 const stopDist=v=>v>25?PX*(2*(v-25)-200*Math.log((100+v)/125)):0;
 function nextPort(){let b=null,bd=1e12;ports.forEach(p=>{const dx=(p.x-ship.x)*ship.dir;if(dx>-120&&dx<bd){bd=dx;b=p}});return b?{p:b,d:Math.max(0,bd)}:null}
@@ -359,7 +391,7 @@ const A={
   this.wake.g.gain.setTargetAtTime(.02+r*.2+(brk&&r>.15?.08:0),n,.15);
   this.wake.fl.frequency.setTargetAtTime(900+r*1400,n,.2);
   this.rain.g.gain.setTargetAtTime(pl?storm*.1:0,n,.4);
-  const base={tug:46,ferry:56,cargo:38,cruise:64,speed:92,tanker:30,navy:60,jet:110,fish:52}[S.kind]||50,eng=pl&&S.kind!=='sail'&&S.kind!=='pinisi'&&S.kind!=='jukung';
+  const base={tug:46,ferry:56,cargo:38,cruise:64,speed:92,tanker:30,navy:60,jet:110,fish:52,yacht:84,sar:68,lng:28}[S.kind]||50,eng=pl&&S.kind!=='sail'&&S.kind!=='pinisi'&&S.kind!=='jukung';
   this.eg.gain.setTargetAtTime(eng?.05+r*.07+(gas?.03:0):0,n,.2);
   this.o1.frequency.setTargetAtTime(base*(1+r*1.1),n,.15);this.o2.frequency.setTargetAtTime(base*.5*(1+r*1.1),n,.15);
   this.cl.frequency.setTargetAtTime(S.kind==='tug'||S.kind==='cargo'||S.kind==='tanker'?5+r*9:11+r*14,n,.2);
@@ -368,7 +400,7 @@ const A={
  hornOn(){
   if(!this.ac||this.h)return;const ac=this.ac,n=ac.currentTime,g=ac.createGain(),lp=ac.createBiquadFilter();
   lp.type='lowpass';lp.frequency.value=1000;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(.22,n+.06);
-  const f={sail:[330,415],pinisi:[260,330],tug:[150,190],ferry:[120,150],cargo:[82,103],cruise:[98,123],speed:[400,500],tanker:[70,88],navy:[110,140],jet:[200,250],jukung:[300,380],fish:[180,230]}[cur().kind];
+  const f={sail:[330,415],pinisi:[260,330],tug:[150,190],ferry:[120,150],cargo:[82,103],cruise:[98,123],speed:[400,500],tanker:[70,88],navy:[110,140],jet:[200,250],jukung:[300,380],fish:[180,230],yacht:[220,277],sar:[350,440],lng:[65,82]}[cur().kind];
   const os=f.flatMap(x=>[x,x*1.005]).map(x=>{const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=x;o.connect(lp);o.start();return o});
   lp.connect(g);g.connect(this.m);this.h={g,os};
  },
@@ -410,7 +442,7 @@ function dock(p){
 function toggleCruise(){if(mode!=='play')return;ship.cruise=!ship.cruise;$('bCruise').classList.toggle('on',ship.cruise);toast(ship.cruise?'Autopilot aktif — mati otomatis saat mendekati pelabuhan':'Autopilot mati')}
 
 const emit=(k,o)=>{if(fx.length<520)fx.push(Object.assign({k,l:1},o))};
-function amp(r){return(1.5+6*r)*sc*(save.waves?1:.2)}
+function amp(r){return(1.5+11*r)*sc*(save.waves?1:.2)}
 function update(dt){
  const S=cur(),brk=keys.ArrowDown||keys.s||keys[' ']||pedal.brake;
  if(brk&&ship.cruise){ship.cruise=false;$('bCruise').classList.remove('on')}
@@ -418,9 +450,17 @@ function update(dt){
  ship.rough+=(roughAt(ship.x)-ship.rough)*Math.min(1,dt*.8);
  const st=clamp((ship.rough-.55)/.3,0,1);storm=st;
  const lvl=ship.rough>.8?3:ship.rough>.55?2:ship.rough>.3?1:0;
- if(lvl!==wxState){if(lvl>wxState&&lvl>=2)toast(lvl===3?'⛈ Badai! Ombak tinggi memperlambat kapal':'🌊 Ombak mulai tinggi');wxState=lvl}
- const cap=S.speed*(1-ship.rough*.1*(1-Math.min(1,S.len/450)*.7));
- if(gas){if(ship.v<cap)ship.v=Math.min(cap,ship.v+S.speed*.22*S.acc*dt)}else ship.v*=Math.pow(.86,dt);
+ if(lvl!==wxState){if(lvl>wxState&&lvl>=2)toast(lvl===3?'⛈ Badai! Ombak raksasa — kurangi gas agar tidak terhantam':'🌊 Ombak mulai tinggi, hati-hati');wxState=lvl}
+ const cap=S.speed*(1-ship.rough*.22*(1-Math.min(1,S.len/450)*.6));
+ // hantaman ombak: ngebut di laut ganas menabrak ombak besar dan kehilangan kecepatan
+ slamT-=dt;shakeT=Math.max(0,shakeT-dt*2);
+ if(slamT<=0&&ship.rough>.3&&ship.v>150){slamT=2.5+Math.random()*3.5/(ship.rough+.3);
+  if(Math.random()<ship.rough*Math.min(1,ship.v/S.speed)*1.1){const big=ship.rough>.6&&Math.random()<.18,loss=(big?.26:.07+.12*ship.rough)*(1-Math.min(1,S.len/500)*.55);
+   ship.v*=1-loss;ship.stun=big?2.6:1.4;shakeT=big?1:.55;A.tone(90,.45,'sawtooth',.12,38);
+   const bx=ship.x+ship.dir*S.len*sc*.48,by=yS+waveH(ship.x,t,amp(ship.rough));for(let i=0;i<(big?44:22);i++)emit('spray',{x:bx,y:by,vx:ship.dir*ship.v*PX*Math.random()*.4+(Math.random()-.5)*120,vy:-(120+Math.random()*320),life:.7+Math.random()*.7,r:2+Math.random()*3.5});
+   if(big)toast('🌊 Gelombang besar menghantam! Kecepatan turun');else if(Math.random()<.3)toast('Hantaman ombak! Kurangi gas di laut ganas')}}
+ ship.stun=Math.max(0,(ship.stun||0)-dt);
+ if(gas){if(ship.v<cap)ship.v=Math.min(cap,ship.v+S.speed*.22*S.acc*(ship.stun>0?.3:1)*dt)}else ship.v*=Math.pow(.86,dt);
  if(ship.v>cap)ship.v=Math.max(cap,ship.v-60*dt);
  if(brk)ship.v=Math.max(0,ship.v-(50+ship.v*.5)*dt);
  if(ship.cruise){const n=nextPort();if(n&&n.d<stopDist(ship.v)*1.25+600){ship.cruise=false;$('bCruise').classList.remove('on');toast('Autopilot mati — bersiap sandar, tekan REM')}}
@@ -428,7 +468,7 @@ function update(dt){
  ship.x+=ship.dir*ship.v*PX*dt;
  if(ship.x<120||ship.x>WORLD.w-120){ship.x=Math.max(120,Math.min(WORLD.w-120,ship.x));ship.v=0}
  // efek: buih, percikan, asap, garis kecepatan, petir
- const vr=ship.v/450,wy=yS+waveH(ship.x,t,amp(ship.rough)),L=S.len*sc;
+ const vr=ship.v/600,wy=yS+waveH(ship.x,t,amp(ship.rough)),L=S.len*sc;
  fxT-=dt;if(fxT<=0&&ship.v>20){fxT=.05;emit('foam',{x:ship.x-ship.dir*L*.45,life:1.6,r:6+vr*16});
   const n=Math.ceil(ship.v/70);for(let i=0;i<n;i++)emit('spray',{x:ship.x+ship.dir*L*.48,y:wy,vx:ship.dir*ship.v*PX*(.1+Math.random()*.5)+(Math.random()-.5)*50,vy:-(50+Math.random()*170)*(.35+vr),life:.5+Math.random()*.6,r:1.5+Math.random()*2.5})}
  const fn=FUNNEL[S.kind];smokeT-=dt;if(fn&&smokeT<=0){smokeT=.1;emit('smoke',{x:ship.x+ship.dir*fn[0]*L,y:wy-(1+fn[1])*S.h*sc,vx:-ship.dir*10+(Math.random()-.5)*12,vy:-30-Math.random()*20,life:2.4,r:3*sc})}
@@ -444,10 +484,10 @@ function update(dt){
 function render(){
  const S=cur(),menu=mode!=='play';let camX;
  const sky=getSky(t);NIGHT=sky.n;GL=[];
- const vr=menu?0:Math.min(1,ship.v/450),rough=menu?.06:ship.rough,a=amp(rough),hq=save.waves;
+ const vr=menu?0:Math.min(1,ship.v/600),rough=menu?.06:ship.rough,a=amp(rough),hq=save.waves;
  if(menu)camX=ports[0].x-W*.3+Math.sin(t*.2)*30;
  else{off+=((ship.dir>0?W*(.36-.1*vr):W*(.64+.1*vr))-off)*.05;camX=ship.x-off}
- const shk=menu?0:vr*(.5+rough*1.8);cx.save();if(shk)cx.translate((Math.random()-.5)*shk*2,(Math.random()-.5)*shk*2);
+ const shk=menu?0:vr*(.5+rough*1.8)+shakeT*7;cx.save();if(shk)cx.translate((Math.random()-.5)*shk*2,(Math.random()-.5)*shk*2);
  cx.textAlign='center';cx.lineJoin='round';
  drawBack(cx,W,H,yH,camX,t,sky);drawSeaFar(cx,W,H,yH,yS,camX,t,sky,a,rough,hq);
  ports.forEach(p=>{const sx=p.x-camX;if(sx<-500||sx>W+500)return;drawPort(cx,p,sx,yH,sc,t)});
@@ -460,7 +500,7 @@ function render(){
  // kapal + gerak mengikuti ombak
  const k=menu?sc*1.4:sc,sxp=menu?W*.7:ship.x-camX,xw=camX+sxp,Lh=S.len*k*.5;
  const wl=waveH(xw-Lh,t,a),wm=waveH(xw,t,a),wr=waveH(xw+Lh,t,a),y=yS+(wl+2*wm+wr)/4;
- const tg=clamp(Math.atan2(wr-wl,Lh*2)*.9-(menu?0:ship.dir*vr*.035),-.25,.25);angS+=(tg-angS)*.15;
+ const tg=clamp(Math.atan2(wr-wl,Lh*2)*.9-(menu?0:ship.dir*vr*.035),-.4,.4);angS+=(tg-angS)*.15;
  const dirS=menu?1:ship.dir;
  // buih jejak
  fx.forEach(p=>{if(p.k!=='foam')return;const xx=p.x-camX,yy=yS+waveH(p.x,t,a)+4*sc;cx.fillStyle=`rgba(255,255,255,${p.l*.5})`;cx.beginPath();cx.ellipse(xx,yy,p.r*(1+(1-p.l)*1.4),(2+(1-p.l)*3)*sc,0,0,7);cx.fill()});
@@ -520,14 +560,14 @@ function hud(sky){
  drawGauge(ship.v,S.speed);
 }
 function drawGauge(v,mx){
- const c=gc,x0=110,y0=112,r=98,MX=450,A=a=>Math.PI+Math.min(a,MX)/MX*Math.PI;c.clearRect(0,0,220,125);
+ const c=gc,x0=110,y0=112,r=98,MX=600,A=a=>Math.PI+Math.min(a,MX)/MX*Math.PI;c.clearRect(0,0,220,125);
  let g=c.createRadialGradient(x0,y0,10,x0,y0,r+8);g.addColorStop(0,'#143b52');g.addColorStop(1,'#08202e');
  c.fillStyle=g;c.beginPath();c.arc(x0,y0,r+8,Math.PI,0);c.closePath();c.fill();
  c.strokeStyle='#f2b84b';c.lineWidth=3;c.beginPath();c.arc(x0,y0,r+5,Math.PI,0);c.stroke();
  g=c.createLinearGradient(x0-r,0,x0+r,0);g.addColorStop(0,'#4ee08a');g.addColorStop(.6,'#f2b84b');g.addColorStop(1,'#e2563f');
  c.strokeStyle=g;c.lineWidth=6;c.lineCap='butt';c.beginPath();c.arc(x0,y0,r-8,Math.PI,A(mx));c.stroke();
  c.fillStyle='#fff';c.textAlign='center';c.font='bold 10px Trebuchet MS';
- for(let i=0;i<=450;i+=25){const a=A(i),m=i%50===0,co=Math.cos(a),si=Math.sin(a);
+ for(let i=0;i<=600;i+=25){const a=A(i),m=i%50===0,co=Math.cos(a),si=Math.sin(a);
   c.strokeStyle=m?'#fff':'#9bb';c.lineWidth=m?2.5:1.2;c.beginPath();c.moveTo(x0+co*(r-14),y0+si*(r-14));c.lineTo(x0+co*(r-(m?24:19)),y0+si*(r-(m?24:19)));c.stroke();
   if(i%100===0)c.fillText(i,x0+co*(r-38),y0+si*(r-38)+4)}
  const a=A(v);c.strokeStyle='#ff5a43';c.lineWidth=4;c.lineCap='round';c.beginPath();c.moveTo(x0,y0);c.lineTo(x0+Math.cos(a)*(r-16),y0+Math.sin(a)*(r-16));c.stroke();
@@ -576,7 +616,7 @@ function renderShop(){
  const bar=(l,v,m,tx)=>`<div class="bar"><span>${l}</span><em><i style="width:${v/m*100}%"></i></em><small>${tx}</small></div>`;
  SHIPS.slice().sort((a,b)=>a.price-b.price).forEach(s=>{
   const own=save.owned.includes(s.id),el=document.createElement('div');el.className='card'+(save.sel===s.id?' on':'');
-  el.innerHTML=`<canvas width="260" height="130"></canvas><h3>${s.name}</h3>${bar('Kecepatan',s.speed,450,s.speed+' km/j')}${bar('Penumpang',s.pass,60,s.pass)}${bar('Kargo',s.cargo,48,s.cargo)}${bar('Akselerasi',s.acc,1.6,'')}<button></button>`;
+  el.innerHTML=`<canvas width="260" height="130"></canvas><h3>${s.name}</h3>${bar('Kecepatan',s.speed,600,s.speed+' km/j')}${bar('Penumpang',s.pass,60,s.pass)}${bar('Kargo',s.cargo,60,s.cargo)}${bar('Akselerasi',s.acc,1.6,'')}<button></button>`;
   const c=el.querySelector('canvas').getContext('2d'),gr=c.createLinearGradient(0,0,0,130);gr.addColorStop(0,'#9fc3cf');gr.addColorStop(.7,'#e0eae6');gr.addColorStop(.7,'#3aa58f');gr.addColorStop(1,'#1f6f74');c.fillStyle=gr;c.fillRect(0,0,260,130);
   const tall=s.kind==='sail'?s.len*.95:s.kind==='pinisi'?s.len:s.kind==='jukung'?s.len*1.0:s.kind==='speed'?s.h*2.4:s.h*3.9;
   const k=Math.min(215/s.len,92/tall);
